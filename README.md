@@ -11,13 +11,12 @@ This actor efficiently scrapes recipes from [Epicurious](https://www.epicurious.
 
 ## Key Features
 
-- 🎯 **Structured Data Extraction** — Prioritizes JSON-LD for reliable, schema-validated recipe data
-- 🔄 **Smart Pagination** — Automatically handles multi-page recipe collections with configurable limits
-- 📊 **Comprehensive Data** — Captures title, author, ingredients, instructions, timing, servings, images, and more
-- 🛡️ **Deduplication** — In-memory duplicate URL detection prevents data redundancy
-- ⚡ **Performance Optimized** — Configurable concurrency and timeout handling for reliability
-- 🌐 **Proxy Support** — Built-in Apify Proxy integration for residential IP rotation
-- 📈 **Scalable** — Handles small test runs and large-scale production collections seamlessly
+- JSON-first extraction: parses JSON-LD `ItemList` for links and `Recipe` data before HTML fallback
+- HTML/AMP/print rescue: secondary fetches to `?output=1`, `/amp`, and `?page=all` to bypass login/trial overlays
+- Comprehensive data: title, author, ingredients, instructions, timing, servings, tags, ratings, nutrition, and media
+- Smart pagination + dedupe: stops at `results_wanted`/`max_pages` and avoids re-processing URLs
+- Performance optimized: concurrency, retries, and timeouts tuned for stable runs
+- Proxy + stealth headers: ready for Apify residential proxy with rotating realistic headers
 
 ## Output Data Structure
 
@@ -123,26 +122,9 @@ For rapid metadata collection without detail pages:
 
 ## Data Extraction Methods
 
-### 1. JSON-LD Structured Data (Primary)
-
-The actor first attempts to extract recipe data from Schema.org JSON-LD markup:
-
-- `Recipe` type validation
-- Complete ingredient arrays
-- Step-by-step instructions
-- Publication dates and ratings
-- Cuisine and category classification
-
-### 2. HTML Parsing Fallback (Robust)
-
-If structured data is incomplete, the actor supplements with intelligent HTML selectors:
-
-- Recipe title extraction from heading tags
-- Author/chef name from byline elements
-- Ingredient lists from list items and dedicated containers
-- Instructions from numbered steps or paragraph sequences
-- Image extraction from recipe-associated media
-- Timing information from dedicated time elements
+1) **JSON-first** – pulls links from `ItemList` JSON-LD on list pages, then extracts recipe details from `Recipe` JSON-LD (ingredients, instructions, timing, nutrition, ratings).  
+2) **HTML fallback** – robust selectors for headings, bylines, ingredient lists, instruction steps, timing blocks, images, and tags.  
+3) **Alt endpoints for paywalls** – if a detail page is gated, the actor retries via `?output=1`, `?page=all`, and `/amp` using direct HTTP (no browser) to recover the recipe content.
 
 ## Actor Behavior
 
