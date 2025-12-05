@@ -2,162 +2,58 @@
   "actorSpecification": 1,
   "fields": {
     "title": {
-      "type": "string",
-      "description": "Recipe name"
+      "type": "string"
     },
     "author": {
-      "type": "string",
-      "description": "Recipe author or chef"
+      "type": "string"
     },
     "description": {
-      "type": "string",
-      "description": "Recipe summary or teaser"
+      "type": "string"
     },
     "recipe_type": {
-      "type": "string",
-      "description": "Category (e.g., vegetarian, vegan)"
+      "type": "string"
     },
     "ingredients": {
-      "type": "array",
-      "description": "List of recipe ingredients"
+      "type": "array"
     },
     "ingredients_count": {
-      "type": "integer",
-      "description": "Total number of ingredients"
+      "type": "number"
     },
     "instructions": {
-      "type": "string",
-      "description": "Cooking instructions"
+      "type": "string"
     },
     "prep_time": {
-      "type": "string",
-      "description": "Preparation time duration"
+      "type": "string"
     },
     "cook_time": {
-      "type": "string",
-      "description": "Cooking time duration"
+      "type": "string"
     },
     "total_time": {
-      "type": "string",
-      "description": "Total time from start to finish"
+      "type": "string"
     },
     "servings": {
-      "type": "string",
-      "description": "Recipe yield/servings"
+      "type": "string"
     },
     "difficulty": {
-      "type": "string",
-      "description": "Difficulty level or rating"
+      "type": "string"
     },
     "cuisine": {
-      "type": "string",
-      "description": "Cuisine type"
+      "type": "string"
     },
     "category": {
-      "type": "string",
-      "description": "Recipe category"
+      "type": "string"
     },
     "image_url": {
-      "type": "string",
-      "description": "URL to recipe image"
+      "type": "string"
     },
     "date_published": {
-      "type": "string",
-      "description": "Publication date"
+      "type": "string"
     },
     "url": {
-      "type": "string",
-      "description": "Source URL of the recipe"
+      "type": "string"
     },
     "scraped_at": {
-      "type": "string",
-      "description": "Timestamp when recipe was scraped"
-    }
-  },
-  "views": {
-    "overview": {
-      "title": "Recipe Overview",
-      "transformation": {
-        "fields": [
-          "title",
-          "author",
-          "prep_time",
-          "cook_time",
-          "servings",
-          "recipe_type",
-          "difficulty",
-          "url"
-        ]
-      },
-      "display": {
-        "component": "table",
-        "properties": {
-          "title": {
-            "label": "Recipe Title",
-            "format": "text"
-          },
-          "author": {
-            "label": "Author",
-            "format": "text"
-          },
-          "prep_time": {
-            "label": "Prep Time",
-            "format": "text"
-          },
-          "cook_time": {
-            "label": "Cook Time",
-            "format": "text"
-          },
-          "servings": {
-            "label": "Servings",
-            "format": "text"
-          },
-          "recipe_type": {
-            "label": "Type",
-            "format": "text"
-          },
-          "difficulty": {
-            "label": "Difficulty",
-            "format": "text"
-          },
-          "url": {
-            "label": "Recipe URL",
-            "format": "link"
-          }
-        }
-      }
-    },
-    "ingredients_view": {
-      "title": "Ingredients List",
-      "transformation": {
-        "fields": [
-          "title",
-          "ingredients",
-          "ingredients_count",
-          "url"
-        ]
-      },
-      "display": {
-        "component": "table",
-        "properties": {
-          "title": {
-            "label": "Recipe",
-            "format": "text"
-          },
-          "ingredients_count": {
-            "label": "Count",
-            "format": "number"
-          },
-          "ingredients": {
-            "label": "Ingredients",
-            "format": "json"
-          },
-          "url": {
-            "label": "Source",
-            "format": "link"
-          }
-        }
-      }
+      "type": "string"
     }
   }
 }

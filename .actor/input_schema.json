@@ -22,15 +22,13 @@
       "title": "Collect Full Recipe Details",
       "type": "boolean",
       "description": "If enabled, visits each recipe page to extract complete ingredients, instructions, and metadata. If disabled, collects only recipe titles and URLs.",
-      "editor": "checkbox",
-      "default": true
+      "editor": "checkbox"
     },
     "results_wanted": {
       "title": "Maximum Number of Recipes",
       "type": "integer",
       "description": "Maximum recipes to collect. Leave empty or set high value to collect all available recipes.",
       "minimum": 1,
-      "default": 50,
       "editor": "number"
     },
     "max_pages": {
@@ -38,25 +36,19 @@
       "type": "integer",
       "description": "Safety limit on pagination pages. Prevents excessive crawling on large collections.",
       "minimum": 1,
-      "editor": "number",
-      "default": 10
+      "editor": "number"
     },
     "proxyConfiguration": {
       "title": "Proxy Configuration",
       "type": "object",
       "description": "Configure proxy settings. Residential proxy recommended for best results.",
-      "editor": "proxy",
-      "default": {
-        "useApifyProxy": true,
-        "apifyProxyGroups": ["RESIDENTIAL"]
-      }
+      "editor": "proxy"
     },
     "dedupe": {
       "title": "Deduplicate Results",
       "type": "boolean",
       "description": "Remove duplicate recipe URLs. Ensures each recipe is collected only once.",
-      "editor": "checkbox",
-      "default": true
+      "editor": "checkbox"
     }
   },
   "required": [],
