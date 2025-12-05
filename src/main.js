@@ -281,10 +281,13 @@ async function main() {
             recipeType = 'vegetarian',
             results_wanted: RESULTS_WANTED_RAW = 50,
             max_pages: MAX_PAGES_RAW = 10,
-            collectDetails = true,
+            collectDetails: COLLECT_DETAILS_RAW,
             proxyConfiguration,
             dedupe = true,
         } = input;
+
+        // Default to true unless explicitly set to false
+        const collectDetails = COLLECT_DETAILS_RAW !== false;
 
         const RESULTS_WANTED = Number.isFinite(+RESULTS_WANTED_RAW)
             ? Math.max(1, +RESULTS_WANTED_RAW)
@@ -349,7 +352,9 @@ async function main() {
                 const pageNo = request.userData?.pageNo || 1;
 
                 if (label === 'LIST') {
-                    crawlerLog.info(`Listing page ${pageNo}: ${request.url}`);
+                    crawlerLog.info(
+                        `Listing page ${pageNo}: ${request.url} | collectDetails=${collectDetails}`,
+                    );
                     const ldNodes = parseJsonLdScripts($);
                     const jsonLinks = extractListLinks(ldNodes, request.url);
                     const htmlLinks = findRecipeLinks($, request.url);

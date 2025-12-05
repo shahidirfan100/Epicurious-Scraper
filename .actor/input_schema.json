@@ -22,7 +22,8 @@
       "title": "Collect Full Recipe Details",
       "type": "boolean",
       "description": "If enabled, visits each recipe page to extract complete ingredients, instructions, and metadata. If disabled, collects only recipe titles and URLs.",
-      "editor": "checkbox"
+      "editor": "checkbox",
+      "prefill": true
     },
     "results_wanted": {
       "title": "Maximum Number of Recipes",
