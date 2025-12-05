@@ -1,61 +1,90 @@
 {
   "actorSpecification": 1,
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "title": {
-      "type": "string"
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Recipe Overview",
+      "transformation": {
+        "fields": [
+          "title",
+          "author",
+          "prep_time",
+          "cook_time",
+          "servings",
+          "recipe_type",
+          "difficulty",
+          "url"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "title": {
+            "label": "Recipe Title",
+            "format": "text"
+          },
+          "author": {
+            "label": "Author",
+            "format": "text"
+          },
+          "prep_time": {
+            "label": "Prep Time",
+            "format": "text"
+          },
+          "cook_time": {
+            "label": "Cook Time",
+            "format": "text"
+          },
+          "servings": {
+            "label": "Servings",
+            "format": "text"
+          },
+          "recipe_type": {
+            "label": "Type",
+            "format": "text"
+          },
+          "difficulty": {
+            "label": "Difficulty",
+            "format": "text"
+          },
+          "url": {
+            "label": "Recipe URL",
+            "format": "link"
+          }
+        }
+      }
     },
-    "author": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string"
-    },
-    "recipe_type": {
-      "type": "string"
-    },
-    "ingredients": {
-      "type": "array"
-    },
-    "ingredients_count": {
-      "type": "number"
-    },
-    "instructions": {
-      "type": "string"
-    },
-    "prep_time": {
-      "type": "string"
-    },
-    "cook_time": {
-      "type": "string"
-    },
-    "total_time": {
-      "type": "string"
-    },
-    "servings": {
-      "type": "string"
-    },
-    "difficulty": {
-      "type": "string"
-    },
-    "cuisine": {
-      "type": "string"
-    },
-    "category": {
-      "type": "string"
-    },
-    "image_url": {
-      "type": "string"
-    },
-    "date_published": {
-      "type": "string"
-    },
-    "url": {
-      "type": "string"
-    },
-    "scraped_at": {
-      "type": "string"
+    "ingredients_view": {
+      "title": "Ingredients List",
+      "transformation": {
+        "fields": [
+          "title",
+          "ingredients",
+          "ingredients_count",
+          "url"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "title": {
+            "label": "Recipe",
+            "format": "text"
+          },
+          "ingredients_count": {
+            "label": "Count",
+            "format": "number"
+          },
+          "ingredients": {
+            "label": "Ingredients",
+            "format": "json"
+          },
+          "url": {
+            "label": "Source",
+            "format": "link"
+          }
+        }
+      }
     }
   }
 }
