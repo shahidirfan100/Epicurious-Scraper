@@ -59,7 +59,7 @@ Configure the actor using these parameters:
 | `recipeType` | String | `vegetarian` | Recipe category (e.g., vegan, gluten-free, dessert) used for tagging |
 | `results_wanted` | Integer | `50` | Maximum number of recipes to collect per run |
 | `max_pages` | Integer | `10` | Safety limit on pagination to prevent excessive crawling |
-| `collectDetails` | Boolean | `true` (default) | Whether to visit individual recipe pages for complete data |
+| `collectDetails` | Boolean | `true` (default) | Toggle detail crawl: on = fetch full recipe pages; off = collect only URLs |
 | `dedupe` | Boolean | `true` | Remove duplicate recipe URLs from results |
 | `proxyConfiguration` | Object | See below | Proxy settings for requests |
 

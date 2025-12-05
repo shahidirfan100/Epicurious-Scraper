@@ -286,8 +286,9 @@ async function main() {
             dedupe = true,
         } = input;
 
-        // Default to true unless explicitly set to false
-        const collectDetails = COLLECT_DETAILS_RAW !== false;
+        // Respect the UI toggle: default true, but if user sets false, only URLs are collected
+        const collectDetails =
+            COLLECT_DETAILS_RAW === undefined ? true : Boolean(COLLECT_DETAILS_RAW);
 
         const RESULTS_WANTED = Number.isFinite(+RESULTS_WANTED_RAW)
             ? Math.max(1, +RESULTS_WANTED_RAW)
