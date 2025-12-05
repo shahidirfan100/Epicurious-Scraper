@@ -3,7 +3,7 @@ import { Actor, log } from 'apify';
 import { CheerioCrawler, Dataset } from 'crawlee';
 import { load as cheerioLoad } from 'cheerio';
 import { gotScraping } from 'got-scraping';
-import HeaderGenerator from 'header-generator';
+import { HeaderGenerator } from 'header-generator';
 
 const headerGenerator = new HeaderGenerator({
     browsers: [{ name: 'chrome', minVersion: 120, httpVersion: '2' }],
