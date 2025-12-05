@@ -1,0 +1,64 @@
+{
+  "title": "Epicurious Recipes Scraper",
+  "description": "Extract recipes from Epicurious. Scrapes recipe details including ingredients, instructions, prep/cook times, and nutritional information. Supports specialized recipe categories.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "startUrl": {
+      "title": "Start URL",
+      "type": "string",
+      "description": "Epicurious recipe collection or search URL to begin scraping.",
+      "editor": "textfield",
+      "prefill": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes"
+    },
+    "recipeType": {
+      "title": "Recipe Type",
+      "type": "string",
+      "description": "Type of recipes to collect (e.g., 'vegetarian', 'vegan', 'gluten-free', 'dessert'). Used for categorization.",
+      "editor": "textfield",
+      "prefill": "vegetarian"
+    },
+    "collectDetails": {
+      "title": "Collect Full Recipe Details",
+      "type": "boolean",
+      "description": "If enabled, visits each recipe page to extract complete ingredients, instructions, and metadata. If disabled, collects only recipe titles and URLs.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "results_wanted": {
+      "title": "Maximum Number of Recipes",
+      "type": "integer",
+      "description": "Maximum recipes to collect. Leave empty or set high value to collect all available recipes.",
+      "minimum": 1,
+      "default": 50,
+      "editor": "number"
+    },
+    "max_pages": {
+      "title": "Maximum Pages to Visit",
+      "type": "integer",
+      "description": "Safety limit on pagination pages. Prevents excessive crawling on large collections.",
+      "minimum": 1,
+      "editor": "number",
+      "default": 10
+    },
+    "proxyConfiguration": {
+      "title": "Proxy Configuration",
+      "type": "object",
+      "description": "Configure proxy settings. Residential proxy recommended for best results.",
+      "editor": "proxy",
+      "default": {
+        "useApifyProxy": true,
+        "apifyProxyGroups": ["RESIDENTIAL"]
+      }
+    },
+    "dedupe": {
+      "title": "Deduplicate Results",
+      "type": "boolean",
+      "description": "Remove duplicate recipe URLs. Ensures each recipe is collected only once.",
+      "editor": "checkbox",
+      "default": true
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

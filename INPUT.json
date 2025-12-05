@@ -1,0 +1,11 @@
+{
+  "startUrl": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes",
+  "recipeType": "vegetarian",
+  "results_wanted": 50,
+  "max_pages": 10,
+  "collectDetails": true,
+  "proxyConfiguration": {
+    "useApifyProxy": true,
+    "apifyProxyGroups": ["RESIDENTIAL"]
+  }
+}

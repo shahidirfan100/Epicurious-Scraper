@@ -1,0 +1,163 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "title": {
+      "type": "string",
+      "description": "Recipe name"
+    },
+    "author": {
+      "type": "string",
+      "description": "Recipe author or chef"
+    },
+    "description": {
+      "type": "string",
+      "description": "Recipe summary or teaser"
+    },
+    "recipe_type": {
+      "type": "string",
+      "description": "Category (e.g., vegetarian, vegan)"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "List of recipe ingredients"
+    },
+    "ingredients_count": {
+      "type": "integer",
+      "description": "Total number of ingredients"
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Cooking instructions"
+    },
+    "prep_time": {
+      "type": "string",
+      "description": "Preparation time duration"
+    },
+    "cook_time": {
+      "type": "string",
+      "description": "Cooking time duration"
+    },
+    "total_time": {
+      "type": "string",
+      "description": "Total time from start to finish"
+    },
+    "servings": {
+      "type": "string",
+      "description": "Recipe yield/servings"
+    },
+    "difficulty": {
+      "type": "string",
+      "description": "Difficulty level or rating"
+    },
+    "cuisine": {
+      "type": "string",
+      "description": "Cuisine type"
+    },
+    "category": {
+      "type": "string",
+      "description": "Recipe category"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL to recipe image"
+    },
+    "date_published": {
+      "type": "string",
+      "description": "Publication date"
+    },
+    "url": {
+      "type": "string",
+      "description": "Source URL of the recipe"
+    },
+    "scraped_at": {
+      "type": "string",
+      "description": "Timestamp when recipe was scraped"
+    }
+  },
+  "views": {
+    "overview": {
+      "title": "Recipe Overview",
+      "transformation": {
+        "fields": [
+          "title",
+          "author",
+          "prep_time",
+          "cook_time",
+          "servings",
+          "recipe_type",
+          "difficulty",
+          "url"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "title": {
+            "label": "Recipe Title",
+            "format": "text"
+          },
+          "author": {
+            "label": "Author",
+            "format": "text"
+          },
+          "prep_time": {
+            "label": "Prep Time",
+            "format": "text"
+          },
+          "cook_time": {
+            "label": "Cook Time",
+            "format": "text"
+          },
+          "servings": {
+            "label": "Servings",
+            "format": "text"
+          },
+          "recipe_type": {
+            "label": "Type",
+            "format": "text"
+          },
+          "difficulty": {
+            "label": "Difficulty",
+            "format": "text"
+          },
+          "url": {
+            "label": "Recipe URL",
+            "format": "link"
+          }
+        }
+      }
+    },
+    "ingredients_view": {
+      "title": "Ingredients List",
+      "transformation": {
+        "fields": [
+          "title",
+          "ingredients",
+          "ingredients_count",
+          "url"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "title": {
+            "label": "Recipe",
+            "format": "text"
+          },
+          "ingredients_count": {
+            "label": "Count",
+            "format": "number"
+          },
+          "ingredients": {
+            "label": "Ingredients",
+            "format": "json"
+          },
+          "url": {
+            "label": "Source",
+            "format": "link"
+          }
+        }
+      }
+    }
+  }
+}
