@@ -1,9 +1,9 @@
 {
   "actorSpecification": 1,
   "name": "epicurious-recipes-scraper",
-  "version": "1.0.0",
+  "version": "1.0",
   "buildTag": "latest",
-  "dockerfile": "./Dockerfile",
+  "dockerfile": "../Dockerfile",
   "readme": "../README.md",
   "input": "./input_schema.json",
   "output": "./output_schema.json",

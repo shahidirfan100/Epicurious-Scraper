@@ -30,6 +30,8 @@
       "type": "integer",
       "description": "Maximum recipes to collect. Leave empty or set high value to collect all available recipes.",
       "minimum": 1,
+      "default": 20,
+      "prefill": 20,
       "editor": "number"
     },
     "max_pages": {
@@ -37,21 +39,23 @@
       "type": "integer",
       "description": "Safety limit on pagination pages. Prevents excessive crawling on large collections.",
       "minimum": 1,
+      "default": 10,
+      "prefill": 10,
       "editor": "number"
     },
     "proxyConfiguration": {
       "title": "Proxy Configuration",
       "type": "object",
-      "description": "Configure proxy settings. Residential proxy recommended for best results.",
+      "description": "Configure proxy settings. Disabled by default; enable as needed for stealth and reliability.",
+      "default": {
+        "useApifyProxy": false
+      },
+      "prefill": {
+        "useApifyProxy": false
+      },
       "editor": "proxy"
-    },
-    "dedupe": {
-      "title": "Deduplicate Results",
-      "type": "boolean",
-      "description": "Remove duplicate recipe URLs. Ensures each recipe is collected only once.",
-      "editor": "checkbox"
     }
   },
-  "required": [],
+  "required": ["startUrl"],
   "additionalProperties": false
 }

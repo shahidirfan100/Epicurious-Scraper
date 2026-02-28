@@ -1,288 +1,237 @@
 # Epicurious Recipes Scraper
 
-> **Production-ready Apify actor** for extracting comprehensive recipe data from Epicurious including ingredients, instructions, timing, and nutritional information. Intelligent data extraction using JSON-LD structured data with HTML parsing fallback for reliability.
+Extract complete recipe datasets from Epicurious in a structured, analysis-ready format. Collect titles, ingredients, instructions, times, servings, ratings, publishing metadata, and source links at scale. This actor is ideal for food trend analysis, content planning, and recipe intelligence workflows.
 
-## Overview
+---
 
-This actor efficiently scrapes recipes from [Epicurious](https://www.epicurious.com) with support for specialized recipe categories including vegetarian, vegan, gluten-free, and dietary-specific collections. The scraper employs **dual-method data extraction**:
+## Features
 
-- **Primary**: JSON-LD structured data parsing for accurate, complete recipe metadata
-- **Fallback**: Smart HTML parsing ensures data recovery even with markup variations
+- **Comprehensive recipe records** — Collects rich fields for each recipe, including ingredient lists and step-by-step instructions
+- **Category-driven collection** — Start from your preferred Epicurious collection URL and tag records by recipe type
+- **Pagination support** — Continues across list pages until your requested result target is reached
+- **Flexible output depth** — Choose full detail extraction or URL-only collection for faster runs
+- **Internal deduplication** — Automatically removes duplicate recipe URLs in every run
 
-## Key Features
+---
 
-- JSON-first extraction: parses JSON-LD `ItemList` for links and `Recipe` data before HTML fallback
-- HTML/AMP/print rescue: secondary fetches to `?output=1`, `/amp`, and `?page=all` to bypass login/trial overlays
-- Comprehensive data: title, author, ingredients, instructions, timing, servings, tags, ratings, nutrition, and media
-- Smart pagination + dedupe: stops at `results_wanted`/`max_pages` and avoids re-processing URLs
-- Performance optimized: concurrency, retries, and timeouts tuned for stable runs
-- Proxy + stealth headers: ready for Apify residential proxy with rotating realistic headers
+## Use Cases
 
-## Output Data Structure
+### Recipe Research
+Build a high-quality recipe dataset for culinary trend exploration, ingredient pattern analysis, and niche cuisine tracking.
 
-Each recipe is saved with the following comprehensive schema:
+### Editorial Planning
+Collect recipe structures, themes, and tags to inform newsletters, blog calendars, and content strategy for food brands.
 
-```json
-{
-  "title": "Roasted Vegetable Medley",
-  "author": "Chef Name",
-  "description": "A colorful collection of seasonal roasted vegetables...",
-  "recipe_type": "vegetarian",
-  "ingredients": [
-    "2 cups mixed vegetables",
-    "3 tablespoons olive oil",
-    "Sea salt and pepper to taste"
-  ],
-  "ingredients_count": 3,
-  "instructions": "Preheat oven... | Toss vegetables... | Serve hot...",
-  "prep_time": "PT15M",
-  "cook_time": "PT30M",
-  "total_time": "PT45M",
-  "servings": "4",
-  "difficulty": "Easy",
-  "cuisine": "Mediterranean",
-  "category": "Vegetarian Mains",
-  "image_url": "https://...",
-  "date_published": "2024-01-15",
-  "url": "https://www.epicurious.com/recipes/...",
-  "scraped_at": "2024-12-05T10:30:00Z"
-}
-```
+### Competitive Intelligence
+Monitor how recipe styles, timing, and metadata evolve across categories to support product or media decisions.
 
-## Input Configuration
+### Structured Data Pipelines
+Feed standardized recipe data into spreadsheets, BI tools, or downstream automations for reporting and enrichment.
 
-Configure the actor using these parameters:
+---
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `startUrl` | String | Vegetarian recipes | Epicurious recipe collection or search URL to begin scraping |
-| `recipeType` | String | `vegetarian` | Recipe category (e.g., vegan, gluten-free, dessert) used for tagging |
-| `results_wanted` | Integer | `50` | Maximum number of recipes to collect per run |
-| `max_pages` | Integer | `10` | Safety limit on pagination to prevent excessive crawling |
-| `collectDetails` | Boolean | `true` (default) | Toggle detail crawl: on = fetch full recipe pages; off = collect only URLs |
-| `dedupe` | Boolean | `true` | Remove duplicate recipe URLs from results |
-| `proxyConfiguration` | Object | See below | Proxy settings for requests |
+## Input Parameters
 
-### Proxy Configuration
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `startUrl` | String | Yes | `https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes` | Epicurious collection or search URL where extraction begins |
+| `recipeType` | String | No | `"vegetarian"` | Label added to records for easier categorization |
+| `results_wanted` | Integer | No | `20` | Maximum number of recipes to collect |
+| `max_pages` | Integer | No | `10` | Safety cap for listing pages |
+| `collectDetails` | Boolean | No | `true` | When enabled, collects full recipe details; when disabled, returns URL-focused records |
+| `proxyConfiguration` | Object | No | `{"useApifyProxy": false}` | Proxy configuration (disabled by default) |
 
-```json
-{
-  "useApifyProxy": true,
-  "apifyProxyGroups": ["RESIDENTIAL"]
-}
-```
+---
 
-For best results, use **Residential proxies** to avoid rate limiting and ensure consistent access.
+## Output Data
+
+Each dataset item can contain:
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | String | Recipe title |
+| `author` | String | Recipe author or contributor |
+| `description` | String | Recipe summary text |
+| `recipe_type` | String | Category label from input |
+| `ingredients` | Array | Ingredient lines |
+| `ingredients_count` | Number | Number of ingredients |
+| `instructions` | String | Instructions joined as a single string |
+| `instructions_list` | Array | Step-by-step instruction list |
+| `prep_time` | String | Preparation time |
+| `cook_time` | String | Cooking time |
+| `total_time` | String | Total recipe time |
+| `servings` | String | Yield/serving information |
+| `difficulty` | String | Difficulty indicator derived from available rating context |
+| `category` | String | Recipe category (when available) |
+| `cuisine` | String | Cuisine type (when available) |
+| `tags` | Array | Recipe tags/keywords |
+| `image_url` | String | Main recipe image |
+| `date_published` | String | Publish date |
+| `date_modified` | String | Last modified date |
+| `rating_value` | Number/String | Rating value |
+| `rating_count` | Number/String | Rating/review count |
+| `rating_best` | Number/String | Best rating value |
+| `rating_worst` | Number/String | Worst rating value |
+| `nutrition` | Object | Nutrition block (if available) |
+| `article_body` | String | Long-form body text (if available) |
+| `alternative_headline` | String | Alternate headline text |
+| `is_accessible_for_free` | Boolean | Accessibility flag when provided |
+| `url` | String | Canonical recipe URL |
+| `scraped_at` | String | ISO timestamp of extraction |
+| `_source` | String | Source domain identifier |
+| `raw` | Object | Additional non-empty source fields for advanced analysis |
+
+---
 
 ## Usage Examples
 
-### Basic Usage
-
-Scrape the default vegetarian recipes collection:
+### Basic Collection
 
 ```json
 {
   "startUrl": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes",
-  "results_wanted": 25
+  "recipeType": "vegetarian",
+  "results_wanted": 20
 }
 ```
 
-### Vegan Recipes
+### Vegan Category Collection
 
 ```json
 {
   "startUrl": "https://www.epicurious.com/recipes-menus/easy-vegan-recipes",
   "recipeType": "vegan",
-  "results_wanted": 50
+  "results_wanted": 40,
+  "max_pages": 12,
+  "collectDetails": true
 }
 ```
 
-### Desserts with Full Details
+### URL-Only Fast Run
 
 ```json
 {
-  "startUrl": "https://www.epicurious.com/recipes-menus/dessert-recipes",
-  "recipeType": "dessert",
-  "collectDetails": true,
-  "results_wanted": 100
+  "startUrl": "https://www.epicurious.com/recipes-menus/vegetarian-recipes",
+  "recipeType": "vegetarian",
+  "results_wanted": 100,
+  "collectDetails": false
 }
 ```
 
-### Quick Collection (URLs Only)
-
-For rapid metadata collection without detail pages:
+### Proxy Configuration
 
 ```json
 {
-  "startUrl": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes",
-  "collectDetails": false,
-  "results_wanted": 200
+  "proxyConfiguration": {
+    "useApifyProxy": false,
+    "apifyProxyGroups": ["RESIDENTIAL"]
+  }
 }
 ```
-
-## Data Extraction Methods
-
-1) **JSON-first** – pulls links from `ItemList` JSON-LD on list pages, then extracts recipe details from `Recipe` JSON-LD (ingredients, instructions, timing, nutrition, ratings).  
-2) **HTML fallback** – robust selectors for headings, bylines, ingredient lists, instruction steps, timing blocks, images, and tags.  
-3) **Alt endpoints for paywalls** – if a detail page is gated, the actor retries via `?output=1`, `?page=all`, and `/amp` using direct HTTP (no browser) to recover the recipe content.
-
-## Actor Behavior
-
-### Pagination Logic
-
-1. Crawler visits the starting URL and identifies recipe links
-2. Extracts recipe URLs from current page
-3. Enqueues URLs for detail extraction (if `collectDetails: true`)
-4. Locates "next page" link and continues pagination
-5. Stops when reaching `results_wanted` or `max_pages` limit
-
-### Deduplication
-
-When enabled (`dedupe: true`), the actor maintains an in-memory Set of seen recipe URLs to prevent:
-- Duplicate processing
-- Redundant API calls
-- Duplicate dataset entries
-- Resource waste
-
-### Error Handling
-
-- Automatic retry logic for failed requests (3 attempts)
-- Session pooling for connection stability
-- Graceful fallback between data extraction methods
-- Detailed logging for debugging
-
-## Performance Considerations
-
-### Recommended Settings
-
-| Use Case | results_wanted | max_pages | collectDetails | Concurrency |
-|----------|---|---|---|---|
-| Test Run | 10 | 1 | false | 5 |
-| Standard Collection | 50 | 10 | true | 5 |
-| Large Scale | 500+ | 50 | true | 5 |
-
-### Rate Limiting
-
-- **Default Concurrency**: 5 parallel requests
-- **Request Timeout**: 60 seconds per page
-- **Retry Attempts**: 3 attempts per failed request
-- **Use Residential Proxy** to avoid IP blocks
-
-## Monitoring and Debugging
-
-### Log Levels
-
-The actor provides detailed logging:
-
-```
-LIST page 1: https://www.epicurious.com/recipes-menus/...
-Found 20 recipe links on page 1
-Enqueued 20 recipes for detail extraction
-Saved recipe 1/50: Roasted Vegetable Medley
-```
-
-### Common Issues
-
-**Few recipes found**
-- Verify the collection URL is accessible
-- Check pagination settings
-- Ensure recipes aren't behind JavaScript rendering
-
-**Incomplete ingredient lists**
-- The fallback HTML parsing may be incomplete
-- Ensure JSON-LD is available or inspect page source
-
-**Rate limiting or blocks**
-- Reduce concurrency to 3
-- Enable residential proxy
-- Increase request timeouts
-
-## API Endpoints and Data Flow
-
-### Data Sources
-
-- **Primary Source**: https://www.epicurious.com/recipes-menus/
-- **Data Format**: HTML + Embedded JSON-LD
-- **Authentication**: None required
-- **Rate Limits**: Respect robots.txt and Terms of Service
-
-### Output Handling
-
-Results are saved to Apify Dataset with:
-- Automatic JSON serialization
-- Duplicate prevention via deduplication
-- Configurable dataset names and storage
-- Export options (JSON, CSV, XML)
-
-## Stealthy Operation
-
-The actor implements multiple anti-detection measures:
-
-- **Session Management**: Rotates session identifiers
-- **User-Agent Rotation**: Varied request headers via header-generator
-- **Proxy Integration**: Residential IP rotation via Apify Proxy
-- **Rate Limiting**: Configurable concurrency and delays
-- **Request Timing**: Realistic timeouts and retry intervals
-
-## Sitemap and Collection Discovery
-
-### Supported URL Formats
-
-- Direct recipe collection URLs: `/recipes-menus/*`
-- Category-based collections: `/recipes-menus/vegetarian-recipes`
-- Search results: `/search?q=vegetarian`
-- Individual recipe pages: `/recipes/*/[recipe-name]`
-
-### Dynamic Collection Building
-
-The actor automatically discovers recipes through:
-1. Direct link extraction from collection pages
-2. Pagination following
-3. Dynamic content handling with session management
-4. Fallback URL construction
-
-## Production Deployment
-
-### Requirements
-
-- Node.js 22 (or higher)
-- Apify Account (for proxy and storage)
-- Residential proxy access (recommended)
-
-### Deployment Steps
-
-1. Push code to Apify platform
-2. Configure input schema in actor settings
-3. Set up proxy configuration
-4. Test with sample input
-5. Schedule recurring runs if needed
-
-### Scaling Strategy
-
-- Increase `results_wanted` for larger collections
-- Use multiple actor runs with different recipe categories
-- Combine results from sequential runs
-- Store in Apify Dataset for long-term access
-
-## Best Practices
-
-1. **Start Small**: Test with `results_wanted: 10` before scaling
-2. **Monitor Logs**: Check actor run logs for extraction issues
-3. **Use Proxies**: Residential proxies significantly improve success rates
-4. **Handle Errors**: Implement retry logic in downstream processes
-5. **Respect Terms**: Ensure compliance with Epicurious Terms of Service
-6. **Cache Results**: Use Apify Dataset APIs for efficient data retrieval
-
-## Support & Resources
-
-- [Apify Platform Documentation](https://docs.apify.com)
-- [Crawlee Framework Guide](https://crawlee.dev)
-- [Schema.org Recipe Specification](https://schema.org/Recipe)
-
-## License
-
-Licensed for use on the Apify platform according to platform terms and conditions.
 
 ---
 
-**Version**: 1.0.0 | **Last Updated**: December 2024 | **Maintained by**: Apify Community
+## Sample Output
+
+```json
+{
+  "title": "Chicken Tikka Masala",
+  "author": "Julie Sahni",
+  "description": "A classic and aromatic curry recipe.",
+  "recipe_type": "vegetarian",
+  "ingredients": [
+    "1 cup plain yogurt",
+    "2 tablespoons fresh ginger, grated",
+    "1 1/2 pounds boneless chicken"
+  ],
+  "ingredients_count": 3,
+  "instructions": "Whisk the marinade. | Coat the chicken and rest. | Simmer sauce and combine.",
+  "instructions_list": [
+    "Whisk the marinade.",
+    "Coat the chicken and rest.",
+    "Simmer sauce and combine."
+  ],
+  "prep_time": "PT20M",
+  "cook_time": "PT40M",
+  "total_time": "PT1H",
+  "servings": "4 servings",
+  "tags": ["Indian", "Dinner", "Spicy"],
+  "image_url": "https://assets.epicurious.com/photos/example.jpg",
+  "date_published": "2024-01-15T10:00:00.000Z",
+  "rating_value": 4.8,
+  "rating_count": 125,
+  "url": "https://www.epicurious.com/recipes/food/views/chicken-tikka-masala-51171400",
+  "scraped_at": "2026-02-28T10:30:00.000Z",
+  "_source": "epicurious.com"
+}
+```
+
+---
+
+## Tips for Best Results
+
+### Start With a Focused Collection URL
+- Use category-specific pages for cleaner datasets
+- Prefer active, frequently updated collections
+
+### Keep Initial Runs Small
+- Begin with `results_wanted: 20` for validation
+- Increase gradually for production jobs
+
+### Use Proxies for Reliability
+- Residential proxy settings help maintain consistent collection quality
+- Keep pagination limits realistic for faster completion
+
+---
+
+## Integrations
+
+- **Google Sheets** — Export and review recipe data in spreadsheets
+- **Airtable** — Build searchable recipe intelligence bases
+- **Make** — Trigger workflows after each run
+- **Zapier** — Connect results to business tools
+- **Webhooks** — Deliver data to custom systems
+
+### Export Formats
+
+- **JSON** — Best for APIs and apps
+- **CSV** — Spreadsheet-friendly format
+- **Excel** — Reporting and business analysis
+- **XML** — Structured system exchange
+
+---
+
+## Frequently Asked Questions
+
+### How many recipes can I collect?
+You can collect as many as available from your chosen pages, constrained by your `results_wanted` and `max_pages` settings.
+
+### Can I run this on multiple categories?
+Yes. Schedule separate runs with different `startUrl` and `recipeType` values, then merge datasets.
+
+### Why are some fields empty on certain recipes?
+Some source pages do not provide every metadata field. Empty fields are expected when the source lacks that information.
+
+### How can I make runs faster?
+Use `collectDetails: false` for URL-focused collection and lower result limits for quick checks.
+
+### Is duplicate prevention available?
+Yes. Canonical URL deduplication is enforced internally on every run.
+
+---
+
+## Support
+
+For issues or feature requests, use the support options in your Apify Console.
+
+### Resources
+
+- [Apify Documentation](https://docs.apify.com/)
+- [Apify API Reference](https://docs.apify.com/api/v2)
+- [Apify Scheduling](https://docs.apify.com/platform/schedules)
+
+---
+
+## Legal Notice
+
+This actor is intended for legitimate data collection. You are responsible for complying with applicable laws and website terms.
