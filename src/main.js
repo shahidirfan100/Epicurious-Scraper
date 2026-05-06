@@ -5,14 +5,26 @@ import { gotScraping } from 'got-scraping';
 await Actor.init();
 
 const BASE_URL = 'https://www.epicurious.com';
-const DETAIL_CONCURRENCY = 10;
+const DETAIL_CONCURRENCY = 25;
 const DATASET_BATCH_SIZE = 10;
 const REQUEST_RETRIES = 2;
 
 const normalize = (value) => {
     if (value === undefined || value === null) return null;
-    const text = String(value).replace(/\s+/g, ' ').trim();
-    return text || null;
+    let text = String(value).replace(/\s+/g, ' ').trim();
+    if (!text) return null;
+    
+    // Basic HTML unescape
+    const entities = {
+        '&quot;': '"', '&amp;': '&', '&lt;': '<', '&gt;': '>',
+        '&rsquo;': "'", '&lsquo;': "'", '&rdquo;': '"', '&ldquo;': '"',
+        '&nbsp;': ' ', '&ndash;': '-', '&mdash;': '--',
+    };
+    for (const [entity, char] of Object.entries(entities)) {
+        text = text.replace(new RegExp(entity, 'g'), char);
+    }
+    
+    return text.trim() || null;
 };
 
 const arrify = (value) => {
@@ -27,6 +39,18 @@ const toAbs = (value, base = BASE_URL) => {
         return new URL(value, base).href.split('#')[0];
     } catch {
         return null;
+    }
+};
+
+const cleanImageUrl = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    try {
+        const u = new URL(url);
+        u.search = '';
+        u.hash = '';
+        return u.href;
+    } catch {
+        return url;
     }
 };
 
@@ -130,11 +154,12 @@ const pickBestRecipeObject = (state) => {
         let score = 0;
         if (!item || typeof item !== 'object') return score;
         if (item['@type'] === 'Recipe' || arrify(item['@type']).includes('Recipe')) score += 20;
-        if (item.recipeIngredient) score += 20;
-        if (item.recipeInstructions) score += 20;
-        if (item.totalTime || item.cookTime || item.prepTime) score += 10;
-        if (item.recipeYield) score += 5;
+        if (item.recipeIngredient || item.ingredientGroups) score += 20;
+        if (item.recipeInstructions || item.instructions) score += 20;
+        if (item.totalTime || item.cookTime || item.prepTime || item.times) score += 10;
+        if (item.recipeYield || item.servingSizeInfo) score += 5;
         if (item.aggregateRating) score += 5;
+        if (item.hed) score += 10;
         score += Math.min(Object.keys(item).length, 30);
         return score;
     };
@@ -163,19 +188,21 @@ const compactObject = (value) => {
     if (Array.isArray(value)) {
         const cleaned = value
             .map((item) => compactObject(item))
-            .filter((item) => item !== null && item !== undefined && item !== '');
+            .filter((item) => item !== null && item !== undefined && item !== '' && item !== 'null');
         return cleaned.length ? cleaned : null;
     }
     if (typeof value === 'object') {
         const out = {};
         for (const [key, child] of Object.entries(value)) {
+            if (['aspectRatios', '__typename', 'featureFlags', 'aiChatBotConfig'].includes(key)) continue;
             const cleaned = compactObject(child);
-            if (cleaned !== null && cleaned !== undefined && cleaned !== '') out[key] = cleaned;
+            if (cleaned !== null && cleaned !== undefined && cleaned !== '' && cleaned !== 'null') out[key] = cleaned;
         }
         return Object.keys(out).length ? out : null;
     }
     if (typeof value === 'string') {
-        return normalize(value);
+        const norm = normalize(value);
+        return (norm === 'null' || !norm) ? null : norm;
     }
     return value;
 };
@@ -193,58 +220,126 @@ const toAuthorString = (author) => {
 };
 
 const mapRecipeRecord = (recipe, detailUrl, recipeType) => {
-    const ingredients = arrify(recipe.recipeIngredient)
+    let ingredients = arrify(recipe.recipeIngredient)
         .map((value) => normalize(value))
         .filter(Boolean);
-    const instructionsList = uniq(flattenInstructionLines(recipe.recipeInstructions));
-    const image =
-        typeof recipe.image === 'string'
-            ? recipe.image
-            : Array.isArray(recipe.image)
-                ? recipe.image.find((entry) => typeof entry === 'string')
-                : recipe.image?.url || recipe.image?.['@id'] || null;
+    if (!ingredients.length && recipe.ingredientGroups) {
+        ingredients = arrify(recipe.ingredientGroups)
+            .flatMap((group) => arrify(group.ingredients).map((i) => i.dangerousDescription || i.description))
+            .map((value) => normalize(value))
+            .filter(Boolean);
+    }
+
+    let instructionsList = uniq(flattenInstructionLines(recipe.recipeInstructions));
+    if (!instructionsList.length && recipe.instructions) {
+        instructionsList = uniq(
+            arrify(recipe.instructions)
+                .flatMap((group) => arrify(group.steps).map((s) => s.dangerousDescription || s.description))
+                .map((value) => normalize(value))
+                .filter(Boolean)
+        );
+    }
+
+    let image = typeof recipe.image === 'string'
+        ? recipe.image
+        : Array.isArray(recipe.image)
+            ? recipe.image.find((entry) => typeof entry === 'string')
+            : recipe.image?.url || recipe.image?.['@id'] || null;
+    
+    if (!image && recipe.lede?.aspectRatios) {
+        const aspectRatios = arrify(recipe.lede.aspectRatios);
+        image = aspectRatios.find(a => a.name === 'master')?.url || aspectRatios.find(a => a.name === '1:1')?.url || recipe.lede.url || null;
+    } else if (!image && recipe.socialPhoto?.url) {
+        image = recipe.socialPhoto.url;
+    }
+    image = cleanImageUrl(image);
+
     const keywords = Array.isArray(recipe.keywords)
         ? recipe.keywords
         : typeof recipe.keywords === 'string'
             ? recipe.keywords.split(',')
             : [];
-    const tags = uniq(keywords.map((value) => normalize(value)).filter(Boolean));
+            
+    let tags = uniq(keywords.map((value) => normalize(value)).filter(Boolean));
+    let cuisine = normalize(arrify(recipe.recipeCuisine)[0]);
+    let category = normalize(arrify(recipe.recipeCategory)[0]);
 
-    const dynamic = compactObject(recipe) || {};
+    if (recipe.tags && Array.isArray(recipe.tags)) {
+        const tagObjects = recipe.tags.filter(t => t && typeof t === 'object');
+        if (!tags.length) {
+            tags = uniq(tagObjects.map(t => t.name).map(value => normalize(value)).filter(Boolean));
+        }
+        
+        // Better cuisine/category detection
+        const cuisineObj = tagObjects.find(t => t.metadata?.contentType === 'cuisine' || t.slug?.includes('cuisine'));
+        if (!cuisine && cuisineObj) cuisine = cuisineObj.name;
+        
+        const catObj = tagObjects.find(t => 
+            (t.metadata?.contentType === 'category' || t.name === 'category') && 
+            !['Dinner', 'Lunch', 'Breakfast', 'Main', 'Side'].includes(t.name)
+        ) || tagObjects.find(t => t.metadata?.contentType === 'category');
+        
+        if (!category && catObj) category = catObj.name;
+    }
 
-    return {
-        title: normalize(recipe.name || recipe.headline) || normalize(detailUrl.split('/').pop()?.replace(/-/g, ' ')),
-        author: toAuthorString(recipe.author),
-        description: normalize(recipe.description || recipe.alternativeHeadline),
+    const authors = arrify(recipe.allContributors?.edges).map(e => e.node?.name).filter(Boolean);
+    const authorStr = authors.length ? authors.join(', ') : toAuthorString(recipe.author);
+
+    // Clean up raw data to avoid "messy" output
+    const rawData = { ...recipe };
+    const fieldsToDrop = [
+        'body', 'recircRelated', 'recircMostPopular', 'tagCloud', 
+        'allContributors', 'aiChatBotConfig', 'featureFlags', 
+        'headerProps', 'socialMedia', 'ratingFormSignInURL'
+    ];
+    fieldsToDrop.forEach(f => delete rawData[f]);
+    const dynamic = compactObject(rawData) || {};
+
+    const difficultyVal = recipe.aggregateRating?.ratingValue || recipe.aggregateRating;
+
+    const description = normalize(
+        recipe.seoDescription || 
+        recipe.dek || 
+        recipe.description || 
+        recipe.alternativeHeadline || 
+        recipe.socialTitle ||
+        recipe.lede?.caption
+    );
+
+    const record = {
+        title: normalize(recipe.hed || recipe.name || recipe.headline) || normalize(detailUrl.split('/').pop()?.replace(/-/g, ' ')),
+        author: authorStr,
+        description,
         recipe_type: normalize(recipeType),
         ingredients,
         ingredients_count: ingredients.length,
         instructions: instructionsList.join(' | ') || null,
         instructions_list: instructionsList,
-        prep_time: normalize(recipe.prepTime),
-        cook_time: normalize(recipe.cookTime),
-        total_time: normalize(recipe.totalTime),
-        servings: normalize(recipe.recipeYield),
-        difficulty: recipe.aggregateRating?.ratingValue ? `Rated ${recipe.aggregateRating.ratingValue}` : null,
-        category: normalize(arrify(recipe.recipeCategory)[0]),
-        cuisine: normalize(arrify(recipe.recipeCuisine)[0]),
+        prep_time: normalize(recipe.times?.prepTime || recipe.prepTime),
+        cook_time: normalize(recipe.times?.cookTime || recipe.cookTime),
+        total_time: normalize(recipe.times?.totalTime || recipe.totalTime),
+        servings: normalize(recipe.servingSizeInfo?.description || recipe.recipeYield),
+        difficulty: difficultyVal ? `Rated ${difficultyVal}` : null,
+        category: normalize(category),
+        cuisine: normalize(cuisine),
         tags,
-        image_url: normalize(image),
-        date_published: normalize(recipe.datePublished),
+        image_url: image,
+        date_published: normalize(recipe.pubDate || recipe.datePublished),
         date_modified: normalize(recipe.dateModified),
-        rating_value: recipe.aggregateRating?.ratingValue || null,
-        rating_count: recipe.aggregateRating?.ratingCount || recipe.aggregateRating?.reviewCount || null,
+        rating_value: recipe.aggregateRating?.ratingValue || recipe.aggregateRating || null,
+        rating_count: recipe.reviewsCount || recipe.aggregateRating?.ratingCount || recipe.aggregateRating?.reviewCount || null,
         rating_best: recipe.aggregateRating?.bestRating || null,
         rating_worst: recipe.aggregateRating?.worstRating || null,
-        nutrition: compactObject(recipe.nutrition),
+        nutrition: compactObject(recipe.nutritionalInfo || recipe.nutrition),
         article_body: normalize(recipe.articleBody),
         alternative_headline: normalize(recipe.alternativeHeadline),
         is_accessible_for_free: recipe.isAccessibleForFree ?? null,
         url: normalize(recipe.url) || detailUrl,
         scraped_at: new Date().toISOString(),
         _source: 'epicurious.com',
-        raw: dynamic,
     };
+
+    return compactObject(record);
 };
 
 const fetchHtml = async (url, proxyConfiguration) => {

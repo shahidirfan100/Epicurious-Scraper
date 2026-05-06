@@ -46,16 +46,13 @@
     "proxyConfiguration": {
       "title": "Proxy Configuration",
       "type": "object",
-      "description": "Configure proxy settings. Disabled by default; enable as needed for stealth and reliability.",
+      "description": "Proxy settings for requests. Residential proxies are recommended for larger result sets.",
+      "editor": "proxy",
       "default": {
-        "useApifyProxy": false
-      },
-      "prefill": {
-        "useApifyProxy": false
-      },
-      "editor": "proxy"
+        "useApifyProxy": true
+      }
     }
   },
-  "required": ["startUrl"],
+  "required": [],
   "additionalProperties": false
 }

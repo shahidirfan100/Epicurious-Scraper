@@ -3,9 +3,5 @@
   "recipeType": "vegetarian",
   "results_wanted": 20,
   "max_pages": 10,
-  "collectDetails": true,
-  "proxyConfiguration": {
-    "useApifyProxy": false,
-    "apifyProxyGroups": ["RESIDENTIAL"]
-  }
+  "collectDetails": true
 }
