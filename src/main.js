@@ -219,7 +219,7 @@ const toAuthorString = (author) => {
     return names.length ? names.join(', ') : null;
 };
 
-const mapRecipeRecord = (recipe, detailUrl, recipeType) => {
+const mapRecipeRecord = (recipe, detailUrl, recipeType, ogImage) => {
     let ingredients = arrify(recipe.recipeIngredient)
         .map((value) => normalize(value))
         .filter(Boolean);
@@ -252,7 +252,9 @@ const mapRecipeRecord = (recipe, detailUrl, recipeType) => {
     } else if (!image && recipe.socialPhoto?.url) {
         image = recipe.socialPhoto.url;
     }
-    image = cleanImageUrl(image);
+    
+    // Prioritize ogImage from HTML as it's the most reliable public link
+    image = cleanImageUrl(ogImage || image);
 
     const keywords = Array.isArray(recipe.keywords)
         ? recipe.keywords
@@ -469,14 +471,17 @@ async function main() {
                     if (saved >= RESULTS_WANTED) break;
                     const mapped = await Promise.all(detailChunk.map(async (detailUrl) => {
                         try {
-                            const detailHtml = await fetchHtml(`${detailUrl}?output=1`, proxyConf);
+                            const detailHtml = await fetchHtml(detailUrl, proxyConf);
+                            const ogImageMatch = detailHtml.match(/<meta property="og:image" content="([^"]+)"/);
+                            const ogImage = ogImageMatch ? ogImageMatch[1] : null;
+
                             const detailState = extractPreloadedState(detailHtml);
                             if (!detailState) return null;
 
                             const recipe = pickBestRecipeObject(detailState);
                             if (!recipe) return null;
 
-                            const item = mapRecipeRecord(recipe, detailUrl, recipeType);
+                            const item = mapRecipeRecord(recipe, detailUrl, recipeType, ogImage);
                             const canonicalUrl = normalizeRecipeUrl(item.url || detailUrl);
                             if (!canonicalUrl || pushedUrls.has(canonicalUrl)) return null;
                             item.url = canonicalUrl;
