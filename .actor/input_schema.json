@@ -49,7 +49,7 @@
       "description": "Proxy settings for requests. Residential proxies are recommended for larger result sets.",
       "editor": "proxy",
       "default": {
-        "useApifyProxy": true
+        "useApifyProxy": false
       }
     }
   },
