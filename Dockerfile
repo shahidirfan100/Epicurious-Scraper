@@ -1,16 +1,19 @@
-FROM alpine:latest
+FROM node:22-alpine
 
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache ca-certificates
 
-RUN addgroup app && adduser app -G app -D
 WORKDIR /home/app
-USER app
 
-COPY --chown=app:app package*.json ./
-RUN npm i --omit=dev && rm -r ~/.npm || true
+COPY --chown=node:node package*.json ./
+RUN npm install --omit=dev --no-audit --no-fund \
+    && npm cache clean --force \
+    && node -e "import('impit').then(() => console.log('impit ready'))"
 
-COPY --chown=app:app . ./
+COPY --chown=node:node . ./
 
+ENV NODE_ENV=production
 ENV APIFY_LOG_LEVEL=INFO
 
-CMD npm start --silent
+USER node
+
+CMD ["npm", "start", "--silent"]

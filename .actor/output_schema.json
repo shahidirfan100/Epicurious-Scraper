@@ -4,8 +4,13 @@
     "properties": {
         "overview": {
             "type": "string",
-            "title": "Overview",
+            "title": "Recipe Overview",
             "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+        },
+        "ingredients": {
+            "type": "string",
+            "title": "Ingredients",
+            "template": "{{links.apiDefaultDatasetUrl}}/items?view=ingredients_view"
         }
     }
 }

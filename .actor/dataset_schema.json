@@ -10,9 +10,13 @@
           "author",
           "prep_time",
           "cook_time",
+          "total_time",
           "servings",
           "recipe_type",
           "difficulty",
+          "category",
+          "cuisine",
+          "rating_value",
           "url"
         ]
       },
@@ -35,6 +39,10 @@
             "label": "Cook Time",
             "format": "text"
           },
+          "total_time": {
+            "label": "Total Time",
+            "format": "text"
+          },
           "servings": {
             "label": "Servings",
             "format": "text"
@@ -46,6 +54,18 @@
           "difficulty": {
             "label": "Difficulty",
             "format": "text"
+          },
+          "category": {
+            "label": "Category",
+            "format": "text"
+          },
+          "cuisine": {
+            "label": "Cuisine",
+            "format": "text"
+          },
+          "rating_value": {
+            "label": "Rating",
+            "format": "number"
           },
           "url": {
             "label": "Recipe URL",

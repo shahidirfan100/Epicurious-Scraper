@@ -1,46 +1,44 @@
 {
   "title": "Epicurious Recipes Scraper",
-  "description": "Extract recipes from Epicurious. Scrapes recipe details including ingredients, instructions, prep/cook times, and nutritional information. Supports specialized recipe categories.",
+  "description": "Collect recipes from Epicurious collections, ingredient pages, or individual recipe URLs. Returns ingredients, instructions, times, servings, ratings, nutrition, and source metadata.",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
     "startUrl": {
       "title": "Start URL",
       "type": "string",
-      "description": "Epicurious recipe collection or search URL to begin scraping.",
+      "description": "Epicurious collection, ingredient, or recipe URL where scraping begins.",
       "editor": "textfield",
+      "default": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes",
       "prefill": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes"
     },
     "recipeType": {
-      "title": "Recipe Type",
+      "title": "Recipe Label",
       "type": "string",
-      "description": "Type of recipes to collect (e.g., 'vegetarian', 'vegan', 'gluten-free', 'dessert'). Used for categorization.",
-      "editor": "textfield",
-      "prefill": "vegetarian"
+      "description": "Optional label stored as recipe_type, such as vegetarian or dessert.",
+      "editor": "textfield"
     },
     "collectDetails": {
       "title": "Collect Full Recipe Details",
       "type": "boolean",
-      "description": "If enabled, visits each recipe page to extract complete ingredients, instructions, and metadata. If disabled, collects only recipe titles and URLs.",
+      "description": "Visit each recipe page for ingredients and instructions. Disable to collect titles, descriptions, and URLs only.",
       "editor": "checkbox",
-      "prefill": true
+      "default": true
     },
     "results_wanted": {
       "title": "Maximum Number of Recipes",
       "type": "integer",
-      "description": "Maximum recipes to collect. Leave empty or set high value to collect all available recipes.",
+      "description": "Stop after saving this many recipes.",
       "minimum": 1,
       "default": 20,
-      "prefill": 20,
       "editor": "number"
     },
     "max_pages": {
       "title": "Maximum Pages to Visit",
       "type": "integer",
-      "description": "Safety limit on pagination pages. Prevents excessive crawling on large collections.",
+      "description": "Pagination limit for collection and ingredient pages.",
       "minimum": 1,
       "default": 10,
-      "prefill": 10,
       "editor": "number"
     },
     "proxyConfiguration": {

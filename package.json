@@ -1,15 +1,21 @@
 {
   "name": "epicurious-recipes-scraper",
   "version": "1.0",
-  "description": "Production-ready Epicurious recipes scraper. Extracts vegetarian and specialty recipes using JSON-LD structured data with HTML parsing fallback.",
+  "description": "Epicurious recipes scraper with JSON-LD extraction, hydration-state fallbacks, and impit browser profiles.",
   "type": "module",
   "scripts": {
-    "start": "node src/main.js"
+    "start": "node src/main.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "apify": "^3.7.0",
-    "crawlee": "^3.16.0",
-    "cheerio": "^1.2.0",
-    "got-scraping": "^4.2.1"
+    "impit": "^0.14.7"
+  },
+  "devDependencies": {
+    "@apify/eslint-config": "^2.0.6",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.10"
   }
 }

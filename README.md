@@ -1,237 +1,248 @@
-# Epicurious Recipes Scraper
+## What does Epicurious Recipes Scraper do?
 
-Extract complete recipe datasets from Epicurious in a structured, analysis-ready format. Collect titles, ingredients, instructions, times, servings, ratings, publishing metadata, and source links at scale. This actor is ideal for food trend analysis, content planning, and recipe intelligence workflows.
+Epicurious Recipes Scraper collects recipe data from Epicurious collection pages, ingredient pages, and individual recipe URLs. Start with a page such as `our-favorite-vegetarian-recipes` or `ingredient/banana`, set a result limit, and download a structured dataset of recipe titles, ingredients, instructions, times, servings, ratings, tags, and source links.
 
----
+The Actor is built for recipe research, food content planning, menu development, nutrition analysis, and AI datasets that need clean recipe records instead of copy-pasted text from web pages.
 
-## Features
+## Why use Epicurious Recipes Scraper?
 
-- **Comprehensive recipe records** — Collects rich fields for each recipe, including ingredient lists and step-by-step instructions
-- **Category-driven collection** — Start from your preferred Epicurious collection URL and tag records by recipe type
-- **Pagination support** — Continues across list pages until your requested result target is reached
-- **Flexible output depth** — Choose full detail extraction or URL-only collection for faster runs
-- **Internal deduplication** — Automatically removes duplicate recipe URLs in every run
+- **Recipe datasets without manual work** - Collect hundreds of recipe records with consistent field names and canonical URLs.
+- **Broad source coverage** - Start from editorial collections, ingredient pages, or a single recipe.
+- **Control over detail depth** - Collect full ingredients and instructions, or switch to a faster URL-only run.
+- **Ready for repeat runs** - Schedule the Actor to refresh a recipe collection, monitor new additions, or build a data pipeline.
+- **Export and integration support** - Download JSON, CSV, Excel, or XML, or send results to Google Sheets, webhooks, Make, Zapier, or your own API.
+- **Useful filtering fields** - Separate recipes by `recipe_type`, `category`, `cuisine`, `difficulty`, tags, and ratings after collection.
 
----
+## What data can you extract from Epicurious?
 
-## Use Cases
+| Field | Description |
+|-------|-------------|
+| `title` | Recipe name as published on Epicurious |
+| `author` | Recipe author or contributor names |
+| `description` | Short recipe summary |
+| `ingredients` | Full ingredient line list |
+| `instructions_list` | Step-by-step cooking instructions |
+| `prep_time`, `cook_time`, `total_time` | Timing values published by the source |
+| `servings` | Yield or serving information |
+| `difficulty` | Difficulty tag such as Easy or Moderate |
+| `category`, `cuisine` | Course and cuisine labels when available |
+| `rating_value`, `rating_count` | Rating average and number of ratings |
+| `image_url` | Main recipe image |
+| `url` | Canonical Epicurious recipe URL |
 
-### Recipe Research
-Build a high-quality recipe dataset for culinary trend exploration, ingredient pattern analysis, and niche cuisine tracking.
+The dataset also includes tags, nutrition data, article text, publish dates, and source metadata when Epicurious provides them.
 
-### Editorial Planning
-Collect recipe structures, themes, and tags to inform newsletters, blog calendars, and content strategy for food brands.
+## How to use Epicurious Recipes Scraper
 
-### Competitive Intelligence
-Monitor how recipe styles, timing, and metadata evolve across categories to support product or media decisions.
+1. Open the Actor in Apify Console.
+2. Paste an Epicurious collection, ingredient, or recipe URL into `startUrl`.
+3. Set `results_wanted` and, for listing pages, `max_pages`.
+4. Leave `collectDetails` enabled for full recipes, or disable it for a quick URL list.
+5. Run the Actor and open the dataset to review, filter, or export the results.
 
-### Structured Data Pipelines
-Feed standardized recipe data into spreadsheets, BI tools, or downstream automations for reporting and enrichment.
-
----
+For a first run, use the prefilled vegetarian collection and a limit of 20 recipes. Increase the limit and page count after you confirm the output shape.
 
 ## Input Parameters
 
 | Parameter | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `startUrl` | String | Yes | `https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes` | Epicurious collection or search URL where extraction begins |
-| `recipeType` | String | No | `"vegetarian"` | Label added to records for easier categorization |
-| `results_wanted` | Integer | No | `20` | Maximum number of recipes to collect |
-| `max_pages` | Integer | No | `10` | Safety cap for listing pages |
-| `collectDetails` | Boolean | No | `true` | When enabled, collects full recipe details; when disabled, returns URL-focused records |
-| `proxyConfiguration` | Object | No | `{"useApifyProxy": false}` | Proxy configuration (disabled by default) |
+|-----------|------|----------|---------|-------------|
+| `startUrl` | String | No | `https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes` | Epicurious collection, ingredient, or recipe URL |
+| `recipeType` | String | No | - | Optional label stored as `recipe_type`, such as vegetarian, vegan, or dessert |
+| `collectDetails` | Boolean | No | `true` | Visit each recipe page for ingredients and instructions. Disable for titles and URLs only |
+| `results_wanted` | Integer | No | `20` | Stop after saving this many recipes |
+| `max_pages` | Integer | No | `10` | Pagination limit for collection and ingredient pages |
+| `proxyConfiguration` | Object | No | `{"useApifyProxy": false}` | Optional Apify Proxy settings for larger or repeat runs |
 
----
+`startUrl` accepts collection pages, ingredient pages, and individual recipe URLs. Keyword search pages are not used as an input source; use an ingredient page or a themed collection instead.
 
 ## Output Data
 
-Each dataset item can contain:
+Fields without a source value are omitted from the record.
 
 | Field | Type | Description |
-|---|---|---|
+|-------|------|-------------|
 | `title` | String | Recipe title |
-| `author` | String | Recipe author or contributor |
-| `description` | String | Recipe summary text |
-| `recipe_type` | String | Category label from input |
+| `author` | String | Author or contributor names |
+| `description` | String | Recipe summary |
+| `recipe_type` | String | Label from the `recipeType` input |
 | `ingredients` | Array | Ingredient lines |
-| `ingredients_count` | Number | Number of ingredients |
-| `instructions` | String | Instructions joined as a single string |
-| `instructions_list` | Array | Step-by-step instruction list |
-| `prep_time` | String | Preparation time |
-| `cook_time` | String | Cooking time |
-| `total_time` | String | Total recipe time |
-| `servings` | String | Yield/serving information |
-| `difficulty` | String | Difficulty indicator derived from available rating context |
-| `category` | String | Recipe category (when available) |
-| `cuisine` | String | Cuisine type (when available) |
-| `tags` | Array | Recipe tags/keywords |
-| `image_url` | String | Main recipe image |
+| `ingredients_count` | Number | Number of ingredient lines |
+| `instructions` | String | Instructions joined with ` \| ` |
+| `instructions_list` | Array | Instruction steps |
+| `prep_time` | String | Prep time as published |
+| `cook_time` | String | Cook time as published |
+| `total_time` | String | Total time as published |
+| `servings` | String | Yield or serving information |
+| `difficulty` | String | Difficulty tag, such as Easy or Moderate |
+| `category` | String | Course or category, such as Main or Dessert |
+| `cuisine` | String | Cuisine when available |
+| `tags` | Array | Keywords and recipe tags |
+| `image_url` | String | Main image URL |
 | `date_published` | String | Publish date |
 | `date_modified` | String | Last modified date |
-| `rating_value` | Number/String | Rating value |
-| `rating_count` | Number/String | Rating/review count |
-| `rating_best` | Number/String | Best rating value |
-| `rating_worst` | Number/String | Worst rating value |
-| `nutrition` | Object | Nutrition block (if available) |
-| `article_body` | String | Long-form body text (if available) |
-| `alternative_headline` | String | Alternate headline text |
-| `is_accessible_for_free` | Boolean | Accessibility flag when provided |
+| `rating_value` | Number | Average rating |
+| `rating_count` | Number | Rating or review count |
+| `rating_best` | Number | Best possible rating |
+| `rating_worst` | Number | Worst possible rating |
+| `nutrition` | Object | Nutrition block when present |
+| `article_body` | String | Long-form recipe article |
+| `alternative_headline` | String | Alternate headline |
+| `is_accessible_for_free` | Boolean | Free-access flag |
 | `url` | String | Canonical recipe URL |
-| `scraped_at` | String | ISO timestamp of extraction |
-| `_source` | String | Source domain identifier |
-| `raw` | Object | Additional non-empty source fields for advanced analysis |
-
----
+| `scraped_at` | String | ISO timestamp |
+| `_source` | String | `epicurious.com` |
 
 ## Usage Examples
 
-### Basic Collection
+### Collect a vegetarian recipe collection
+
+Use a themed collection to build a recipe dataset with full details.
 
 ```json
 {
   "startUrl": "https://www.epicurious.com/recipes-menus/our-favorite-vegetarian-recipes",
   "recipeType": "vegetarian",
-  "results_wanted": 20
+  "results_wanted": 20,
+  "max_pages": 2
 }
 ```
 
-### Vegan Category Collection
+### Collect recipes that use a specific ingredient
+
+Ingredient pages are useful for keyword-style recipe research, such as banana, chocolate, or chicken recipes.
 
 ```json
 {
-  "startUrl": "https://www.epicurious.com/recipes-menus/easy-vegan-recipes",
-  "recipeType": "vegan",
-  "results_wanted": 40,
-  "max_pages": 12,
-  "collectDetails": true
+  "startUrl": "https://www.epicurious.com/ingredient/banana",
+  "recipeType": "banana",
+  "results_wanted": 30,
+  "max_pages": 2
 }
 ```
 
-### URL-Only Fast Run
+### Collect a single recipe
+
+Paste any Epicurious recipe URL to collect one complete record.
 
 ```json
 {
-  "startUrl": "https://www.epicurious.com/recipes-menus/vegetarian-recipes",
-  "recipeType": "vegetarian",
-  "results_wanted": 100,
-  "collectDetails": false
+  "startUrl": "https://www.epicurious.com/recipes/food/views/bombay-toasties-masala-chile-cheese-tara-obrady",
+  "results_wanted": 1,
+  "max_pages": 1
 }
 ```
 
-### Proxy Configuration
+### Collect a fast URL list
+
+Disable detail collection when you only need titles, descriptions, images, and links.
 
 ```json
 {
-  "proxyConfiguration": {
-    "useApifyProxy": false,
-    "apifyProxyGroups": ["RESIDENTIAL"]
-  }
+  "startUrl": "https://www.epicurious.com/ingredient/chocolate",
+  "recipeType": "chocolate",
+  "collectDetails": false,
+  "results_wanted": 50,
+  "max_pages": 2
 }
 ```
-
----
 
 ## Sample Output
 
+Values are shortened for readability. A full record contains the complete ingredient and instruction lists.
+
 ```json
 {
-  "title": "Chicken Tikka Masala",
-  "author": "Julie Sahni",
-  "description": "A classic and aromatic curry recipe.",
+  "title": "Bombay Masala Cheese Toasties",
+  "author": "Tara O'Brady",
+  "description": "Melty, cheesy, crunchy, spicy: these sandwiches, a street food favorite in India, check all the boxes.",
   "recipe_type": "vegetarian",
   "ingredients": [
-    "1 cup plain yogurt",
-    "2 tablespoons fresh ginger, grated",
-    "1 1/2 pounds boneless chicken"
+    "1 Granny Smith apple, cored, cut into large pieces",
+    "Juice of 1 lime",
+    "1 (1\") piece ginger, peeled",
+    "2 garlic cloves, peeled",
+    "1 cup cilantro leaves with tender stems"
   ],
-  "ingredients_count": 3,
-  "instructions": "Whisk the marinade. | Coat the chicken and rest. | Simmer sauce and combine.",
+  "ingredients_count": 5,
+  "instructions": "Puree the chutney ingredients. | Cook the mustard seeds and spices. | Assemble and toast the sandwiches.",
   "instructions_list": [
-    "Whisk the marinade.",
-    "Coat the chicken and rest.",
-    "Simmer sauce and combine."
+    "Puree the chutney ingredients.",
+    "Cook the mustard seeds and spices.",
+    "Assemble and toast the sandwiches."
   ],
-  "prep_time": "PT20M",
-  "cook_time": "PT40M",
-  "total_time": "PT1H",
-  "servings": "4 servings",
-  "tags": ["Indian", "Dinner", "Spicy"],
-  "image_url": "https://assets.epicurious.com/photos/example.jpg",
-  "date_published": "2024-01-15T10:00:00.000Z",
-  "rating_value": 4.8,
-  "rating_count": 125,
-  "url": "https://www.epicurious.com/recipes/food/views/chicken-tikka-masala-51171400",
-  "scraped_at": "2026-02-28T10:30:00.000Z",
+  "cook_time": "25 minutes",
+  "total_time": "35 minutes",
+  "servings": "Makes 4",
+  "difficulty": "Easy",
+  "category": "Main",
+  "cuisine": "Indian",
+  "tags": ["sandwich", "chutney", "indian", "vegetarian", "easy"],
+  "image_url": "https://assets.epicurious.com/photos/5fdce662a3638a389ff839b0/16:9/w_5428,h_3053,c_limit/BombayToastie_HERO_RECIPE_2-121620_6533.jpg",
+  "date_published": "2021-01-20T13:42:51.813-05:00",
+  "rating_value": 4.5,
+  "rating_count": 15,
+  "url": "https://www.epicurious.com/recipes/food/views/bombay-toasties-masala-chile-cheese-tara-obrady",
+  "scraped_at": "2026-10-23T12:07:20.442Z",
   "_source": "epicurious.com"
 }
 ```
 
----
-
 ## Tips for Best Results
 
-### Start With a Focused Collection URL
-- Use category-specific pages for cleaner datasets
-- Prefer active, frequently updated collections
-
-### Keep Initial Runs Small
-- Begin with `results_wanted: 20` for validation
-- Increase gradually for production jobs
-
-### Use Proxies for Reliability
-- Residential proxy settings help maintain consistent collection quality
-- Keep pagination limits realistic for faster completion
-
----
+- Start with 10 to 20 recipes to check field quality before running a large collection.
+- Use collection pages for broad datasets and ingredient pages for focused, keyword-style research.
+- Set `max_pages` when a listing has many pages. The Actor stops at the page limit even if `results_wanted` is higher.
+- Leave `collectDetails` enabled when you need ingredients and instructions. Disable it for a faster URL inventory.
+- A collection may contain fewer recipes than `results_wanted` because some links point to articles or videos instead of recipes.
+- Some recipes do not publish prep time, cuisine, ratings, or nutrition. Missing fields are omitted rather than filled with guessed values.
+- Use Apify Proxy for large or scheduled runs if you see repeated request failures.
 
 ## Integrations
 
-- **Google Sheets** — Export and review recipe data in spreadsheets
-- **Airtable** — Build searchable recipe intelligence bases
-- **Make** — Trigger workflows after each run
-- **Zapier** — Connect results to business tools
-- **Webhooks** — Deliver data to custom systems
-
-### Export Formats
-
-- **JSON** — Best for APIs and apps
-- **CSV** — Spreadsheet-friendly format
-- **Excel** — Reporting and business analysis
-- **XML** — Structured system exchange
-
----
+- **Google Sheets** - Send recipe datasets to a spreadsheet for review and sharing.
+- **Webhooks** - Trigger a workflow when a run finishes.
+- **Make or Zapier** - Connect results to no-code automations.
+- **API** - Retrieve dataset items programmatically for apps, dashboards, or AI pipelines.
+- **CSV, Excel, JSON, XML** - Export datasets in the format your team already uses.
 
 ## Frequently Asked Questions
 
-### How many recipes can I collect?
-You can collect as many as available from your chosen pages, constrained by your `results_wanted` and `max_pages` settings.
+### Does Epicurious Recipes Scraper support keyword search?
 
-### Can I run this on multiple categories?
-Yes. Schedule separate runs with different `startUrl` and `recipeType` values, then merge datasets.
+No. The Actor accepts Epicurious collection, ingredient, and recipe URLs. Use an ingredient page or a themed collection when you want recipes around a keyword such as banana, chocolate, or chicken.
 
-### Why are some fields empty on certain recipes?
-Some source pages do not provide every metadata field. Empty fields are expected when the source lacks that information.
+### Can I export the dataset to CSV or Excel?
 
-### How can I make runs faster?
-Use `collectDetails: false` for URL-focused collection and lower result limits for quick checks.
+Yes. Apify datasets can be downloaded as CSV, Excel, JSON, XML, and other supported formats.
 
-### Is duplicate prevention available?
-Yes. Canonical URL deduplication is enforced internally on every run.
+### Can I schedule the Actor to run automatically?
 
----
+Yes. Create a schedule in Apify Console and set the input for each refresh. Scheduled runs work well for tracking new recipes in a collection or ingredient page.
+
+### Can I collect a single recipe?
+
+Yes. Paste the recipe URL into `startUrl` and set `results_wanted` to `1`.
+
+### Why did the run save fewer recipes than I requested?
+
+The collection may contain fewer recipe links than the requested limit, or some links may point to articles, videos, or other non-recipe pages. Duplicate URLs are removed.
+
+### Why are some output fields empty?
+
+Epicurious does not publish every field for every recipe. Timing, cuisine, ratings, and nutrition can be missing at the source. The Actor leaves those fields out instead of inventing values.
+
+### Can I run the Actor without collecting full recipe details?
+
+Yes. Set `collectDetails` to `false` to collect titles, descriptions, images, and URLs without visiting each recipe page.
+
+### Is it legal to collect data from Epicurious?
+
+Scraping public web data can be legal, but rules vary by location and use case. You are responsible for complying with applicable laws, Epicurious terms, and privacy requirements.
 
 ## Support
 
-For issues or feature requests, use the support options in your Apify Console.
-
-### Resources
-
-- [Apify Documentation](https://docs.apify.com/)
-- [Apify API Reference](https://docs.apify.com/api/v2)
-- [Apify Scheduling](https://docs.apify.com/platform/schedules)
-
----
+For issues, feature requests, or custom Actor work, use the Issues tab on the Actor page or contact the developer through Apify.
 
 ## Legal Notice
 
-This actor is intended for legitimate data collection. You are responsible for complying with applicable laws and website terms.
+This Actor is designed for legitimate collection of publicly available recipe data. Users are responsible for using the data responsibly and complying with applicable laws and website terms.
